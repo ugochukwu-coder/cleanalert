@@ -7,15 +7,16 @@ import {
   getReports,
   updateStatus,
   addDonation,
+  deleteReport
 } from "../controllers/reportController.js";
-import { auth, adminAuth } from "../middleware/auth.js"; // FIXED: Changed from '../middleware/auth.js'
+import { auth, adminAuth } from "../middleware/auth.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
-// Multer setup - use absolute path (KEPT EXACTLY THE SAME)
+// Multer setup
 const storage = multer.diskStorage({
   destination(req, file, cb) {
     const uploadsDir = path.join(__dirname, '../uploads');
@@ -43,19 +44,15 @@ const upload = multer({ storage, fileFilter });
 router.get("/", getReports); // Anyone can view reports
 
 // Protected routes - require authentication
-router.post("/", auth, upload.single("image"), (req, res, next) => {
-  console.log("=== POST /api/reports REQUEST RECEIVED ===");
-  console.log("Request body:", req.body);
-  console.log("Uploaded file:", req.file);
-  console.log("User:", req.user?.username);
-  console.log("===========================================");
-  next();
-}, createReport);
+router.post("/", auth, upload.single("image"), createReport);
 
-// ADDED: Donation route (requires auth)
+// Donation route (requires auth)
 router.post("/:id/donate", auth, addDonation);
 
 // Admin routes
 router.put("/:id/status", adminAuth, updateStatus);
+
+// Delete route
+router.delete("/:id", adminAuth, deleteReport);
 
 export default router;

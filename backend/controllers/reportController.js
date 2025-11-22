@@ -76,3 +76,24 @@ export const addDonation = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Delete report
+export const deleteReport = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const report = await Report.findByIdAndDelete(id);
+
+    if (!report) {
+      return res.status(404).json({ message: "Report not found" });
+    }
+
+    res.json({ 
+      message: "Report deleted successfully",
+      deletedReport: report 
+    });
+  } catch (error) {
+    console.error("❌ Error deleting report:", error);
+    res.status(500).json({ message: error.message });
+  }
+};

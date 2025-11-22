@@ -8,7 +8,7 @@ import connectDB from "./config/db.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import authRoutes from "./routes/auth.js";
 import paystackRoutes from "./routes/paystack.js";
-import adminRoutes from "./routes/admin.js"; // ADD THIS LINE
+import adminRoutes from "./routes/admin.js";
 
 dotenv.config();
 connectDB();
@@ -16,9 +16,9 @@ connectDB();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ADDED: JWT Secret check
+// JWT Secret check - CRITICAL
 if (!process.env.JWT_SECRET) {
-  console.error(" JWT_SECRET is not defined in environment variables");
+  console.error("❌ JWT_SECRET is not defined in environment variables");
   process.exit(1);
 }
 
@@ -30,7 +30,7 @@ const __dirname = path.dirname(__filename);
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
-  console.log('Uploads directory created:', uploadsDir);
+  console.log(' Uploads directory created');
 }
 
 // CORS configuration
@@ -55,13 +55,10 @@ app.use("/uploads", express.static(uploadsDir));
 app.use("/api/reports", reportRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/payment", paystackRoutes);
-app.use("/api/admin", adminRoutes); // ADD THIS LINE
+app.use("/api/admin", adminRoutes);
 
 app.get("/", (req, res) => res.send("CleanAlert backend running..."));
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Uploads directory: ${uploadsDir}`);
-  console.log(` Authentication system ready`);
-  console.log(` Admin routes available at /api/admin`);
+  console.log(` Server running on port ${PORT}`);
 });

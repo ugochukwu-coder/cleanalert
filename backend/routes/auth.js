@@ -25,9 +25,14 @@ router.post("/register", async (req, res) => {
     const user = new User({ username, email, password });
     await user.save();
 
-    // Generate token
+    // Generate token - INCLUDE ROLE
     const token = jwt.sign(
-      { id: user._id }, 
+      { 
+        id: user._id,
+        username: user.username,  // Add these
+        email: user.email,        // fields
+        role: user.role           // ← THIS IS CRITICAL
+      }, 
       process.env.JWT_SECRET, 
       { expiresIn: "7d" }
     );
@@ -63,9 +68,14 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // Generate token
+    // Generate token - INCLUDE ROLE
     const token = jwt.sign(
-      { id: user._id }, 
+      { 
+        id: user._id,
+        username: user.username,  // Add these
+        email: user.email,        // fields  
+        role: user.role           // ← THIS IS CRITICAL
+      }, 
       process.env.JWT_SECRET, 
       { expiresIn: "7d" }
     );
@@ -84,16 +94,17 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// Get current user
+// Get current user - FIX TYPO
 router.get("/me", auth, async (req, res) => {
   res.json({
     user: {
       id: req.user._id,
       username: req.user.username,
       email: req.user.email,
-      role: user.role
+      role: req.user.role  // ← Fix: was `user.role`, should be `req.user.role`
     }
   });
 });
+
 
 export default router;
