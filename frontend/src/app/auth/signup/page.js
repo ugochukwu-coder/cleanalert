@@ -5,15 +5,15 @@ import { useAuth } from "../../../context/AuthContext";
 import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
-  const [form, setForm] = useState({ 
-    username: "", 
-    email: "", 
+  const [form, setForm] = useState({
+    username: "",
+    email: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  
+
   const { register } = useAuth();
   const router = useRouter();
 
@@ -29,7 +29,7 @@ export default function SignupPage() {
     }
 
     const result = await register(form.username, form.email, form.password);
-    
+
     if (result.success) {
       router.push("/");
     } else {
@@ -44,7 +44,9 @@ export default function SignupPage() {
 
   return (
     <div className="max-w-md mx-auto bg-white shadow-lg rounded-lg p-6 mt-8">
-      <h1 className="text-2xl font-bold text-center text-blue-700 mb-4">Create Account</h1>
+      <h1 className="text-2xl font-bold text-center text-blue-700 mb-4">
+        Create Account
+      </h1>
 
       {error && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
@@ -90,8 +92,8 @@ export default function SignupPage() {
           required
         />
 
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           disabled={loading}
           className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 transition"
         >
@@ -101,7 +103,10 @@ export default function SignupPage() {
 
       <p className="text-center text-gray-600 mt-4">
         Already have an account?{" "}
-        <Link href="/auth/login" className="text-blue-600 font-semibold hover:underline">
+        <Link
+          href="/auth/login"
+          className="text-blue-600 font-semibold hover:underline"
+        >
           Login
         </Link>
       </p>
