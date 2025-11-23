@@ -1,0 +1,7 @@
+# Ignore env files everywhere
+.env
+*/.env
+**/.env
+
+# Ignore any env backups
+.env.*
