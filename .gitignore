@@ -2,6 +2,7 @@
 .env
 */.env
 **/.env
+.env.local
 
 # Ignore any env backups
 .env.*
