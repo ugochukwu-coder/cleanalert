@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const ReportForm = () => {
   const [formData, setFormData] = useState({
@@ -9,7 +10,8 @@ const ReportForm = () => {
     location: "",
     description: "",
   });
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState(null);         // File object
+  const [preview, setPreview] = useState(null);     // Local preview URL or Cloudinary URL
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -17,14 +19,13 @@ const ReportForm = () => {
   const { user } = useAuth();
   const router = useRouter();
 
+  // Handle text input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Handle image selection and preview
   const handleImageChange = (e) => {
     const file = e.target.files[0];
 
@@ -40,10 +41,12 @@ const ReportForm = () => {
       }
 
       setImage(file);
+      setPreview(URL.createObjectURL(file));  // Set preview
       setError("");
     }
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -68,7 +71,7 @@ const ReportForm = () => {
       submitData.append("description", formData.description);
 
       if (image) {
-        submitData.append("image", image);
+        submitData.append("image", image); // Backend handles Cloudinary upload
       }
 
       const token = localStorage.getItem("token");
@@ -92,13 +95,10 @@ const ReportForm = () => {
 
       setSuccess("Report submitted successfully!");
 
-      setFormData({
-        title: "",
-        location: "",
-        description: "",
-      });
-
+      // Reset form
+      setFormData({ title: "", location: "", description: "" });
       setImage(null);
+      setPreview(null);
       const fileInput = document.getElementById("image");
       if (fileInput) fileInput.value = "";
     } catch (err) {
@@ -112,14 +112,10 @@ const ReportForm = () => {
     return (
       <div className="w-full max-w-md mx-auto bg-white rounded-lg shadow-sm p-6 m-4">
         <div className="text-center">
-          <div className="mb-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-3">
-              Submit Cleanup Report
-            </h2>
-            <p className="text-gray-600 text-sm">
-              Please login to continue
-            </p>
-          </div>
+          <h2 className="text-xl font-bold text-gray-800 mb-3">
+            Submit Cleanup Report
+          </h2>
+          <p className="text-gray-600 text-sm mb-4">Please login to continue</p>
           <a
             href="/auth/login"
             className="inline-block w-full bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg transition duration-200 text-center"
@@ -150,6 +146,7 @@ const ReportForm = () => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Title */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Title *
@@ -165,6 +162,7 @@ const ReportForm = () => {
           />
         </div>
 
+        {/* Location */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Location *
@@ -180,6 +178,7 @@ const ReportForm = () => {
           />
         </div>
 
+        {/* Description */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Description *
@@ -195,6 +194,7 @@ const ReportForm = () => {
           ></textarea>
         </div>
 
+        {/* Image Upload */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Upload Image
@@ -206,14 +206,27 @@ const ReportForm = () => {
             onChange={handleImageChange}
             className="w-full text-sm text-gray-500 file:mr-4 file:py-3 file:px-4 file:rounded-lg file:border-0 file:bg-green-50 file:text-green-700 hover:file:bg-green-100 file:cursor-pointer"
           />
-
           {image && (
             <p className="mt-2 text-sm text-green-700">
               Selected: {image.name} ({(image.size / 1048576).toFixed(2)} MB)
             </p>
           )}
+
+          {preview && (
+            <div className="mt-3 w-full h-40 relative">
+              <Image
+                src={preview}
+                alt="Preview"
+                fill
+                style={{ objectFit: "cover", borderRadius: "0.5rem" }}
+                loader={({ src }) => src}   // Use blob URL directly
+                unoptimized                 // Skip optimization for preview
+              />
+            </div>
+          )}
         </div>
 
+        {/* Submit */}
         <button
           type="submit"
           disabled={loading}
@@ -221,9 +234,25 @@ const ReportForm = () => {
         >
           {loading ? (
             <span className="flex items-center">
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <svg
+                className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
               </svg>
               Submitting...
             </span>

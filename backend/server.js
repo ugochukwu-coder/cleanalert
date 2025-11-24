@@ -2,7 +2,6 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import path from "path";
-import fs from "fs";
 import { fileURLToPath } from 'url';
 import connectDB from "./config/db.js";
 import reportRoutes from "./routes/reportRoutes.js";
@@ -11,6 +10,16 @@ import paystackRoutes from "./routes/paystack.js";
 import adminRoutes from "./routes/admin.js";
 
 dotenv.config();
+
+
+// Debug: List all loaded environment variables
+console.log('📋 Loaded environment variables:');
+console.log('- MONGO_URI:', process.env.MONGO_URI ? '✅ Loaded' : '❌ Missing');
+console.log('- JWT_SECRET:', process.env.JWT_SECRET ? '✅ Loaded' : '❌ Missing');
+console.log('- CLOUDINARY_CLOUD_NAME:', process.env.CLOUDINARY_CLOUD_NAME || '❌ Missing');
+console.log('- CLOUDINARY_API_KEY:', process.env.CLOUDINARY_API_KEY ? '***' + process.env.CLOUDINARY_API_KEY.slice(-4) : '❌ Missing');
+console.log('- CLOUDINARY_API_SECRET:', process.env.CLOUDINARY_API_SECRET ? '***' + process.env.CLOUDINARY_API_SECRET.slice(-4) : '❌ Missing');
+
 connectDB();
 
 const app = express();
@@ -18,20 +27,19 @@ const PORT = process.env.PORT || 5000;
 
 // JWT Secret check - CRITICAL
 if (!process.env.JWT_SECRET) {
-  console.error("❌ JWT_SECRET is not defined in environment variables");
+  console.error("JWT_SECRET is not defined in environment variables");
+  process.exit(1);
+}
+
+// Cloudinary config check
+if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+  console.error(" Cloudinary environment variables are missing");
   process.exit(1);
 }
 
 // Fix for __dirname in ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// Create uploads directory if it doesn't exist
-const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-  console.log(' Uploads directory created');
-}
 
 // CORS configuration
 const corsOptions = {
@@ -48,8 +56,8 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// Serve static uploads
-app.use("/uploads", express.static(uploadsDir));
+// Remove the local uploads directory setup and static serving
+// app.use("/uploads", express.static(uploadsDir));
 
 // Routes
 app.use("/api/reports", reportRoutes);

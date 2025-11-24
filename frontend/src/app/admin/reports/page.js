@@ -22,7 +22,6 @@ export default function AdminReports() {
   };
 
   // Fetch all reports from backend
- useEffect(() => {
   const fetchReports = async () => {
     try {
       const token = getAuthToken();
@@ -58,7 +57,7 @@ export default function AdminReports() {
   };
 
   fetchReports();
-}, []); 
+
 
   // Update report status
   const updateStatus = async (id, status) => {
@@ -248,17 +247,18 @@ export default function AdminReports() {
               <p className="text-sm text-gray-600 mt-1">📍 {report.location}</p>
               <p className="text-sm text-gray-500 mt-2">{report.description}</p>
 
-              {report.image && (
-                <div className="mt-3 w-full h-40 relative">
-                  <Image
-                    src={`${process.env.NEXT_PUBLIC_API_URL}${report.image}`}
+             {report.image?.url && (
+          <div className="mt-3 w-full h-40 relative">
+              <Image
+                    src={report.image.url}         // Cloudinary URL
                     alt={report.title}
                     fill
                     style={{ objectFit: "cover", borderRadius: "0.5rem" }}
-                    priority={false} 
+                    unoptimized                    // Optional
                   />
                 </div>
               )}
+
 
               {report.donations && report.donations.length > 0 && (
                 <div className="mt-2 p-2 bg-blue-50 rounded">

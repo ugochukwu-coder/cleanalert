@@ -1,6 +1,7 @@
 import Report from "../models/report.js";
+import cloudinary from "../config/cloudinary.js";
 
-// Create new report - UPDATED with user authentication
+// Create new report - UPDATED with Cloudinary
 export const createReport = async (req, res) => {
   try {
     const { title, location, description } = req.body;
@@ -9,8 +10,11 @@ export const createReport = async (req, res) => {
       title,
       location,
       description,
-      image: req.file ? `/uploads/${req.file.filename}` : "", 
-      // ADDED: Link report to user
+      // Cloudinary provides URL and public_id
+      image: req.file ? {
+        url: req.file.path,
+        public_id: req.file.filename
+      } : null,
       createdBy: req.user ? req.user.id : null,
     });
 
@@ -21,6 +25,14 @@ export const createReport = async (req, res) => {
     
     res.status(201).json(report);
   } catch (err) {
+    // If there was a file uploaded but report creation failed, delete from Cloudinary
+    if (req.file && req.file.filename) {
+      try {
+        await cloudinary.uploader.destroy(req.file.filename);
+      } catch (cloudinaryErr) {
+        console.error('Failed to delete image from Cloudinary:', cloudinaryErr);
+      }
+    }
     res.status(400).json({ message: err.message });
   }
 };
@@ -77,23 +89,37 @@ export const addDonation = async (req, res) => {
   }
 };
 
-// Delete report
+// Delete report - UPDATED to delete from Cloudinary
 export const deleteReport = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const report = await Report.findByIdAndDelete(id);
+    const report = await Report.findById(id);
 
     if (!report) {
       return res.status(404).json({ message: "Report not found" });
     }
+
+    // Delete image from Cloudinary if exists
+    if (report.image && report.image.public_id) {
+      try {
+        await cloudinary.uploader.destroy(report.image.public_id);
+        console.log(`Deleted image from Cloudinary: ${report.image.public_id}`);
+      } catch (cloudinaryErr) {
+        console.error('Error deleting image from Cloudinary:', cloudinaryErr);
+        // Continue with report deletion even if image deletion fails
+      }
+    }
+
+    // Delete the report from database
+    await Report.findByIdAndDelete(id);
 
     res.json({ 
       message: "Report deleted successfully",
       deletedReport: report 
     });
   } catch (error) {
-    console.error(" Error deleting report:", error);
+    console.error("Error deleting report:", error);
     res.status(500).json({ message: error.message });
   }
 };

@@ -33,7 +33,7 @@ export default function ReportCard({ report }) {
       });
 
       if (response.ok) {
-        alert('Donation successful! Thank you for your support.');
+        alert('Donation successful! Thank you.');
         setShowDonate(false);
         setDonationAmount('');
         setDonationMessage('');
@@ -54,27 +54,26 @@ export default function ReportCard({ report }) {
       <p className="text-gray-600 text-sm mb-2">📍 {report.location}</p>
       <p className="text-gray-700 mb-3">{report.description}</p>
 
-      {report.image && (
+      {report.image?.url && (
         <div className="w-full h-48 relative mb-3 rounded-md overflow-hidden">
           <Image
-            src={`${process.env.NEXT_PUBLIC_API_URL}${report.image}`}
+            src={report.image.url}  // Use the Cloudinary URL
             alt={report.title}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             style={{ objectFit: 'cover' }}
             className="rounded-md"
+            unoptimized // Optional if you want to skip Next.js optimization
           />
         </div>
       )}
 
       <div className="flex justify-between items-center mb-3">
-        <span
-          className={`inline-block px-3 py-1 text-sm rounded-full font-medium ${
-            report.status === "Resolved"
-              ? "bg-green-100 text-green-700"
-              : "bg-yellow-100 text-yellow-700"
-          }`}
-        >
+        <span className={`inline-block px-3 py-1 text-sm rounded-full font-medium ${
+          report.status === "Resolved"
+            ? "bg-green-100 text-green-700"
+            : "bg-yellow-100 text-yellow-700"
+        }`}>
           {report.status}
         </span>
 
