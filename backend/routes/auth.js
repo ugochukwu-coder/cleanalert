@@ -29,9 +29,9 @@ router.post("/register", async (req, res) => {
     const token = jwt.sign(
       { 
         id: user._id,
-        username: user.username,  // Add these
-        email: user.email,        // fields
-        role: user.role           // ← THIS IS CRITICAL
+        username: user.username,  
+        email: user.email,        
+        role: user.role         
       }, 
       process.env.JWT_SECRET, 
       { expiresIn: "7d" }
@@ -72,9 +72,9 @@ router.post("/login", async (req, res) => {
     const token = jwt.sign(
       { 
         id: user._id,
-        username: user.username,  // Add these
-        email: user.email,        // fields  
-        role: user.role           // ← THIS IS CRITICAL
+        username: user.username,  
+        email: user.email,        
+        role: user.role           
       }, 
       process.env.JWT_SECRET, 
       { expiresIn: "7d" }
@@ -101,7 +101,7 @@ router.get("/me", auth, async (req, res) => {
       id: req.user._id,
       username: req.user.username,
       email: req.user.email,
-      role: req.user.role  // ← Fix: was `user.role`, should be `req.user.role`
+      role: req.user.role  
     }
   });
 });

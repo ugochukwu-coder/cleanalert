@@ -93,7 +93,7 @@ export const deleteReport = async (req, res) => {
       deletedReport: report 
     });
   } catch (error) {
-    console.error("❌ Error deleting report:", error);
+    console.error(" Error deleting report:", error);
     res.status(500).json({ message: error.message });
   }
 };
